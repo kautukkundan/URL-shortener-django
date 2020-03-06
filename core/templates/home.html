@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/uikit@3.3.3/dist/css/uikit.min.css"
+  />
+  
+  <script src="https://cdn.jsdelivr.net/npm/uikit@3.3.3/dist/js/uikit.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/uikit@3.3.3/dist/js/uikit-icons.min.js"></script>
+  <title>Url Shortener</title>
+</head>
+<body style="padding: 40px 0;">
+  <div class="uk-container">
+    <span class="uk-text-lead uk-text-light" style="font-size: 30px">URL Shortener</span>
+    <span class="uk-margin-small-right" uk-icon="icon: link; ratio: 2"></span>
+    
+    <div class="uk-margin" uk-margin>
+      <form method="POST" action="/urls/">
+        {% csrf_token %}
+        <input class="uk-input uk-form-width-large" type="text" name="long_url" placeholder="Enter Url">
+        <input class="uk-input uk-form-width-medium" type="text" name="short_url" placeholder="Enter Short Url">
+        <input type="submit" class="uk-button uk-button-danger"/>
+      </form>
+    </div>
+    
+    {% if messages %}
+    <ul class="messages">
+      {% for message in messages %}
+      <div class="uk-alert-danger" uk-alert>
+        <a class="uk-alert-close" uk-close></a>
+        {{ message }}
+      </div>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    
+    <table class="uk-table uk-table-striped">
+      <thead>
+        <tr>
+          <th>#ID</th>
+          <th>Long Url</th>
+          <th>Short Url</th>
+          <th>#Clicks</th>
+        </tr>
+      </thead>
+      {% for url in all_urls %}
+      <tr>
+        <td>{{forloop.counter}}</td>
+        <td class="uk-text-truncate uk-table-expand"><a href="{{ url.long_url }}">{{ url.long_url }}</a></td>
+        <td><a href="/urls/{{ url.short_url }}">{{ url.short_url }}</a></td>
+        <td>{{ url.clicks }}</td>
+        <td>
+          <form method="POST" action="/urls/delete/{{ url.id }}/" id="delete-{{url.id}}">
+            {% csrf_token %}
+            <a type="submit" href="#" class="uk-icon-link" uk-icon="trash" onclick="document.getElementById('delete-{{url.id}}').submit();"></a>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</body>
+</html>
