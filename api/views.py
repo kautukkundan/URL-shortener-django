@@ -1,9 +1,12 @@
 from django.shortcuts import render
 
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.response import Response
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 from api.serializers import UrlListSerializer
-from rest_framework.response import Response
+
 
 import random
 import string
@@ -12,8 +15,11 @@ from core.models import Url
 
 # Create your views here.
 class UrlShortenerApiViewSet(ModelViewSet):
-  queryset         = Url.objects.all()
-  serializer_class = UrlListSerializer
+  queryset               = Url.objects.all()
+  serializer_class       = UrlListSerializer
+
+  authentication_classes = (TokenAuthentication,)
+  permission_classes     = (IsAuthenticated,)
 
   # def post(self, request, *args, **kwargs):
   #   form_data = request.POST

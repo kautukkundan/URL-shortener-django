@@ -40,6 +40,7 @@ INSTALLED_APPS = [
 
     # Extra Libraries
     'rest_framework',
+    'rest_framework.authtoken',
 
     # My Apps
     'core.apps.CoreConfig',
