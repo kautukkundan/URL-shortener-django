@@ -4,13 +4,21 @@ from rest_framework import serializers
 from core.models import Url
 
 class UserSerializer(serializers.ModelSerializer):
-    urls = serializers.PrimaryKeyRelatedField(many=True, queryset=Url.objects.all())
+    password = serializers.CharField(write_only=True)
+
     class Meta:
         model = User
-        fields = ['id', 'username', 'urls']
+        fields = ('username','first_name', 'last_name', 'email', 'password')
 
-class UrlListSerializer(serializers.HyperlinkedModelSerializer):
+    def create(self, validated_data):
+        user = super(UserSerializer, self).create(validated_data)
+        user.set_password(validated_data['password'])
+        user.save()
+        return user
+        
+class UrlListSerializer(serializers.ModelSerializer):
   owner = serializers.ReadOnlyField(source='owner.username')
+
   class Meta:
     model  = Url
     fields = (

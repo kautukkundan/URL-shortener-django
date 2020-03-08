@@ -4,12 +4,14 @@ from django.shortcuts import render
 from rest_framework import generics
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
-from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication, SessionAuthentication
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.authtoken.models import Token
+from rest_framework import status
+from rest_framework import permissions
 
 from api.serializers import UrlListSerializer, UserSerializer
 
-from rest_framework import permissions
 from api.permissions import IsOwner
 
 import random
@@ -17,40 +19,29 @@ import string
 
 from core.models import Url
 
-# Create your views here.
-class UserList(generics.ListAPIView):
-  queryset         = User.objects.all()
-  serializer_class = UserSerializer
-class UserDetail(generics.RetrieveAPIView):
-  queryset         = User.objects.all()
-  serializer_class = UserSerializer
+class UserCreateAPIView(generics.CreateAPIView):
+    queryset           = User.objects.all()
+    serializer_class   = UserSerializer
+    permission_classes = (AllowAny,)
+
+    def create(self, request, *args, **kwargs): 
+      serializer = self.get_serializer(data=request.data)
+      serializer.is_valid(raise_exception=True)
+      self.perform_create(serializer)
+      headers = self.get_success_headers(serializer.data)
+      token, created = Token.objects.get_or_create(user=serializer.instance)
+      return Response({'token': token.key, 'user': serializer.data}, status=status.HTTP_201_CREATED, headers=headers)
 
 class UrlShortenerApiViewSet(ModelViewSet):
   serializer_class       = UrlListSerializer
 
-  authentication_classes = (TokenAuthentication,)
+  authentication_classes = (TokenAuthentication, SessionAuthentication)
   permission_classes     = (permissions.IsAuthenticatedOrReadOnly, IsOwner,)
 
   def get_queryset(self):
     user = self.request.user
-    return Url.objects.filter(owner=user)
+    return Url.objects.all().filter(owner=user)
 
-  # def post(self, request, *args, **kwargs):
-  #   form_data = request.POST
-
-  #   long_url  = form_data['long_url']
-  #   short_url = form_data['short_url'].replace(" ", "_")
-
-  #   if(not short_url):
-  #     short_url = ''.join(random.choices(string.ascii_lowercase+string.digits, k=8))
-
-  #   exists = Url.objects.filter(short_url=short_url)
-
-  #   if(not exists):
-  #     serializer = UrlListSerializer(long_url=long_url, short_url=short_url)
-  #     if serializer.is_valid():
-  #         serializer.save()
-  #         return Response(serializer.data)
-  #   else:
-  #     return Response(serializer.error)
   
+  def perform_create(self, serializer):
+    serializer.save(owner=self.request.user)

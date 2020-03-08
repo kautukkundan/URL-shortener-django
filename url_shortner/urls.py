@@ -26,7 +26,6 @@ urlpatterns = [
     path('urls/', include('core.urls')),
     path('api/', include(router.urls)),
     path('auth/', obtain_auth_token, name='rest-api-auth'),
-    path('users/', views.UserList.as_view(), name='all-users'),
-    path('users/<int:pk>/', views.UserDetail.as_view(), name='user-details'),
     path('api-auth/', include('rest_framework.urls')),
+    path('newuser/', views.UserCreateAPIView.as_view(), name='new-user'),
 ]
