@@ -17,14 +17,14 @@ class UserSerializer(serializers.ModelSerializer):
         return user
         
 class UrlListSerializer(serializers.ModelSerializer):
-  owner = serializers.ReadOnlyField(source='owner.username')
+    owner = serializers.ReadOnlyField(source='owner.username')
 
-  class Meta:
-    model  = Url
-    fields = (
-      'id',
-      'long_url',
-      'short_url',
-      'clicks',
-      'owner'
-    )
+    class Meta:
+        model  = Url
+        fields = (
+            'id',
+            'long_url',
+            'short_url',
+            'clicks',
+            'owner'
+        )

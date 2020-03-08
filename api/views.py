@@ -25,23 +25,23 @@ class UserCreateAPIView(generics.CreateAPIView):
     permission_classes = (AllowAny,)
 
     def create(self, request, *args, **kwargs): 
-      serializer = self.get_serializer(data=request.data)
-      serializer.is_valid(raise_exception=True)
-      self.perform_create(serializer)
-      headers = self.get_success_headers(serializer.data)
-      token, created = Token.objects.get_or_create(user=serializer.instance)
-      return Response({'token': token.key, 'user': serializer.data}, status=status.HTTP_201_CREATED, headers=headers)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        token, created = Token.objects.get_or_create(user=serializer.instance)
+        return Response({'token': token.key, 'user': serializer.data}, status=status.HTTP_201_CREATED, headers=headers)
 
 class UrlShortenerApiViewSet(ModelViewSet):
-  serializer_class       = UrlListSerializer
+    serializer_class       = UrlListSerializer
 
-  authentication_classes = (TokenAuthentication, SessionAuthentication)
-  permission_classes     = (permissions.IsAuthenticatedOrReadOnly, IsOwner,)
+    authentication_classes = (TokenAuthentication, SessionAuthentication)
+    permission_classes     = (permissions.IsAuthenticatedOrReadOnly, IsOwner,)
 
-  def get_queryset(self):
-    user = self.request.user
-    return Url.objects.all().filter(owner=user)
+    def get_queryset(self):
+        user = self.request.user
+        return Url.objects.all().filter(owner=user)
 
-  
-  def perform_create(self, serializer):
-    serializer.save(owner=self.request.user)
+    
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
