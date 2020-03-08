@@ -8,7 +8,7 @@ import string
 import random 
 
 # Create your views here.
-class UrlShortenerView(ListView):
+class UrlShortenerMainView(ListView):
   queryset            = Url.objects.all().order_by('-id')
   context_object_name = 'all_urls'
   template_name       = 'home.html'
